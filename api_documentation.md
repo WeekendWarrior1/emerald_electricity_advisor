@@ -56,6 +56,7 @@ Body: {
 }
 ```
 Use the received token (decodable at jwt.io) for the rest of the API requests
+
 Token doesn't include an expiration but seems to last 24 hours
 
 ---
@@ -63,7 +64,7 @@ Token doesn't include an expiration but seems to last 24 hours
 #### Refresh token (retrieves a new bearer token)
 ##### Request
 ```http
-POST /api/v1/customer/token-refresh HTTP/1.1
+POST https://api.emerald-ems.com.au/api/v1/customer/token-refresh HTTP/1.1
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
 Content-Type: application/json; charset=UTF-8
 Content-Length: 321

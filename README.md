@@ -5,7 +5,9 @@ Collection of code, tools and documentation for data retrieval from your Emerald
 
 ## Using the Arduino sketch
 This sketch simply prints the energy usage and time stamp for the updates sent by the Electricity Advisor, which should be received every 30s.
+
 It's mainly useful to demonstrate that the Electricity Advisor is connectable by a third party device.
+
 Of interest in the sketch is the security configuration required to pair/handshake with the Electricity Advisor, which may limit what BLE technologies, libraries and languages you can use to connect (not every library seems to support secure BLE connections)
 
 #### Requirements:
@@ -27,3 +29,6 @@ static float pulses_per_kw = 1000;
 
 #### Serial Monitor output:
 ![Serial Monitor Example Output](assets/arduino_serial_monitor_output.png)
+
+## Using the Emerald API
+If you would prefer to use the cloud api rather than retrieving real-time data from the Electricity Advisor, please head to [api_documentation](api_documentation.md) to learn how to authenticate and retrieve energy data.
