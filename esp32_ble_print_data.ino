@@ -19,6 +19,9 @@ static BLEUUID SERVICE_TIME_UUID("00001910-0000-1000-8000-00805f9b34fb");
 static BLEUUID CHAR_TIME_READ_UUID("00002b10-0000-1000-8000-00805f9b34fb");  // read, notify
 static BLEUUID CHAR_TIME_WRITE_UUID("00002b11-0000-1000-8000-00805f9b34fb"); // read, write-without-response
 
+static BLEUUID SERVICE_BATTERY_UUID("0000180f-0000-1000-8000-00805f9b34fb");
+static BLEUUID CHAR_BATTERY_READ_UUID("00002a19-0000-1000-8000-00805f9b34fb");  // read, notify
+
 static boolean doConnect = false;
 static boolean connected = false;
 static boolean doScan = false;
@@ -28,6 +31,7 @@ static BLEClient *pClient;
 
 static BLERemoteCharacteristic *pRemoteCharacteristic_time_read;
 static BLERemoteCharacteristic *pRemoteCharacteristic_time_write;
+static BLERemoteCharacteristic *pRemoteCharacteristic_battery_read;
 
 static std::string getImpulseCmd =                              "0001010500";
 static std::string getPairingCodeCmd =                          "0001030100";
@@ -86,7 +90,7 @@ void decodeEmeraldDate(uint32_t commandDateBin) {
     if (seconds < 10) { Serial.print("0"); } Serial.print(seconds); Serial.println(".000");
 }
 
-static void notifyCallback(
+static void emeraldCommandCallback(
     BLERemoteCharacteristic *pBLERemoteCharacteristic,
     uint8_t *pData,
     size_t length,
@@ -135,6 +139,24 @@ static void notifyCallback(
         }
     } else {
         Serial.print("Recived callback data doesn't include command header");
+    }
+    Serial.println("");
+}
+
+static void emeraldBatteryCallback(
+    BLERemoteCharacteristic *pBLERemoteCharacteristic,
+    uint8_t *pData,
+    size_t length,
+    bool isNotify)
+{
+    Serial.print("Notify callback for characteristic ");
+    Serial.print(pBLERemoteCharacteristic->getUUID().toString().c_str());
+    Serial.print(" of data length ");
+    Serial.println(length);
+    Serial.print("data: ");
+    for (int i = 0; i < length; i++) {
+        Serial.print(" ");
+        Serial.print(pData[i]);
     }
     Serial.println("");
 }
@@ -255,6 +277,36 @@ bool connectToServer()
     pClient->connect(myDevice);
     Serial.println(" - Connected to server");
 
+    // service battery
+    Serial.println("Attempting to get battery service...");
+    BLERemoteService *pRemoteService_battery = pClient->getService(SERVICE_BATTERY_UUID);
+    if (pRemoteService_battery == nullptr)
+    {
+        Serial.print("Failed to find our battery service UUID: ");
+        Serial.println(SERVICE_BATTERY_UUID.toString().c_str());
+        pClient->disconnect();
+        return false;
+    }
+    // time char notify
+    pRemoteCharacteristic_battery_read = pRemoteService_battery->getCharacteristic(CHAR_BATTERY_READ_UUID);
+    if (pRemoteCharacteristic_battery_read == nullptr)
+    {
+        Serial.print("Failed to find our characteristic UUID: ");
+        Serial.println(CHAR_BATTERY_READ_UUID.toString().c_str());
+        pClient->disconnect();
+        return false;
+    }
+    else
+    {
+        Serial.println("Attempting to read battery level...");
+        uint32_t battery = pRemoteCharacteristic_battery_read->readUInt32();
+        Serial.print("Battery Level: ");
+        Serial.println(battery);
+
+        // if (pRemoteCharacteristic->canNotify())
+        pRemoteCharacteristic_battery_read->registerForNotify(emeraldBatteryCallback);
+    }
+
     // service time
     Serial.println("Attempting to get time service...");
     BLERemoteService *pRemoteService_time = pClient->getService(SERVICE_TIME_UUID);
@@ -277,7 +329,7 @@ bool connectToServer()
     else
     {
         // if (pRemoteCharacteristic->canNotify())
-        pRemoteCharacteristic_time_read->registerForNotify(notifyCallback);
+        pRemoteCharacteristic_time_read->registerForNotify(emeraldCommandCallback);
     }
 
     pRemoteCharacteristic_time_write = pRemoteService_time->getCharacteristic(CHAR_TIME_WRITE_UUID);
