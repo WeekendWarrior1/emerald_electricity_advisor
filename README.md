@@ -32,3 +32,7 @@ static float pulses_per_kw = 1000;
 
 ## Using the Emerald API
 If you would prefer to use the cloud api rather than retrieving real-time data from the Electricity Advisor, please head to [api_documentation](api_documentation.md) to learn how to authenticate and retrieve energy data.
+
+Feel free to import the postman collection if you would like to have a play or to investigate the data you can retrieve:
+
+`Import` (ctrl+o in postman), > `link` > `Enter a URL` `https://raw.githubusercontent.com/WeekendWarrior1/emerald_electricity_advisor/main/emerald-ems.postman_collection.json` > `Continue`

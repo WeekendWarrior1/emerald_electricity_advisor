@@ -1,0 +1,247 @@
+{
+	"info": {
+		"_postman_id": "baec054c-d17d-452b-a068-67e956962961",
+		"name": "emerald-ems",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "customer/sign-in",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"app_version\": \"1.2.1\",\n    \"device_name\": \"Samsung Galaxy S22\",\n    \"device_os_version\": \"12\",\n    \"device_token\": \"\",\n    \"device_type\": \"android\",\n    \"email\": \"your_email@email.com\",\n    \"passcode\": null,\n    \"password\": \"your_password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.emerald-ems.com.au/api/v1/customer/sign-in",
+					"protocol": "https",
+					"host": [
+						"api",
+						"emerald-ems",
+						"com",
+						"au"
+					],
+					"path": [
+						"api",
+						"v1",
+						"customer",
+						"sign-in"
+					]
+				},
+				"description": "customer/sign-in"
+			},
+			"response": []
+		},
+		{
+			"name": "customer/property/list",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"user-agent": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.emerald-ems.com.au/api/v1/customer/property/list",
+					"protocol": "https",
+					"host": [
+						"api",
+						"emerald-ems",
+						"com",
+						"au"
+					],
+					"path": [
+						"api",
+						"v1",
+						"customer",
+						"property",
+						"list"
+					]
+				},
+				"description": "customer/property/list"
+			},
+			"response": []
+		},
+		{
+			"name": "customer/property/get-info",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"user-agent": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.emerald-ems.com.au/api/v1/customer/property/get-info?property_id=62e03163-8a69-4002-9439-35a78d88007b",
+					"protocol": "https",
+					"host": [
+						"api",
+						"emerald-ems",
+						"com",
+						"au"
+					],
+					"path": [
+						"api",
+						"v1",
+						"customer",
+						"property",
+						"get-info"
+					],
+					"query": [
+						{
+							"key": "property_id",
+							"value": "62e03163-8a69-4002-9439-35a78d88007b"
+						}
+					]
+				},
+				"description": "customer/property/get-info"
+			},
+			"response": []
+		},
+		{
+			"name": "customer/device/get-by-date/flashes-data",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"user-agent": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.emerald-ems.com.au/api/v1/customer/device/get-by-date/flashes-data?device_id=e6fff4af-51b7-4ee4-902e-109d02fd3532&start_date=2022-04-19&end_date=2022-04-20",
+					"protocol": "https",
+					"host": [
+						"api",
+						"emerald-ems",
+						"com",
+						"au"
+					],
+					"path": [
+						"api",
+						"v1",
+						"customer",
+						"device",
+						"get-by-date",
+						"flashes-data"
+					],
+					"query": [
+						{
+							"key": "device_id",
+							"value": "e6fff4af-51b7-4ee4-902e-109d02fd3532"
+						},
+						{
+							"key": "start_date",
+							"value": "2022-04-19"
+						},
+						{
+							"key": "end_date",
+							"value": "2022-04-20"
+						}
+					]
+				},
+				"description": "customer/device/get-by-date/flashes-data"
+			},
+			"response": []
+		},
+		{
+			"name": "customer/token-refresh",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"user-agent": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"app_version\": \"1.2.1\",\n    \"device_name\": \"Samsung Galaxy S22\",\n    \"device_os_version\": \"12\",\n    \"device_type\": \"android\",\n    \"background_sync_count\": 0\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.emerald-ems.com.au/api/v1/customer/token-refresh",
+					"protocol": "https",
+					"host": [
+						"api",
+						"emerald-ems",
+						"com",
+						"au"
+					],
+					"path": [
+						"api",
+						"v1",
+						"customer",
+						"token-refresh"
+					],
+					"query": [
+						{
+							"key": null,
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
