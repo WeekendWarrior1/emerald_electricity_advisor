@@ -11,7 +11,7 @@ It's mainly useful to demonstrate that the Electricity Advisor is connectable by
 Of interest in the sketch is the security configuration required to pair/handshake with the Electricity Advisor, which may limit what BLE technologies, libraries and languages you can use to connect (not every library seems to support secure BLE connections)
 
 #### Requirements:
-- An esp32
+- An ESP32
 - A configured Emerald Electricity Advisor
 - Electricity Advisor device information:
   - BLE MAC address (can be found on device sticker, by running sketch, or by using an app like nRF Connect)
@@ -21,7 +21,7 @@ Of interest in the sketch is the security configuration required to pair/handsha
 
 #### Fill in your details at top of esp32_ble_print_data.ino and upload:
 ```c++
-static char *BLE_address("30:1b:97:00:00:00");
+static char *BLE_address("30:1b:97:00:00:00"); // lowercase only or else will fail to match
 // if your pairing pin starts with 0, eg "024024", set the emerald_pass_key as 24024
 static uint32_t emerald_pass_key = 123123;
 static float pulses_per_kw = 1000;

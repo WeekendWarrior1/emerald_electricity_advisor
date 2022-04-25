@@ -8,8 +8,9 @@
 
 #include "BLEDevice.h"
 
-static char *BLE_address("30:1b:97:00:00:00");
-static uint32_t emerald_pass_key = 123123; //123123
+static char *BLE_address("30:1b:97:00:00:00"); // lowercase only or else will fail to match
+// if your pairing pin starts with 0, eg "024024", set the emerald_pass_key as 24024
+static uint32_t emerald_pass_key = 123123;
 static float pulses_per_kw = 1000;
 
 // assuming getting data 30s data packets from emerald energy advisor, which is standard
@@ -168,8 +169,8 @@ class MyClientCallback : public BLEClientCallbacks
         connected = true;
         Serial.println("onConnect");
 
-        Serial.print("MTU:");
-        Serial.println(pclient->getMTU());
+        // Serial.print("MTU:");
+        // Serial.println(pclient->getMTU());
         // pclient->getMTU();
     }
 
@@ -298,10 +299,10 @@ bool connectToServer()
     }
     else
     {
-        Serial.println("Attempting to read battery level...");
-        uint32_t battery = pRemoteCharacteristic_battery_read->readUInt32();
-        Serial.print("Battery Level: ");
-        Serial.println(battery);
+        // Serial.println("Attempting to read battery level...");
+        // uint32_t battery = pRemoteCharacteristic_battery_read->readUInt32();
+        // Serial.print("Battery Level: ");
+        // Serial.println(battery);
 
         // if (pRemoteCharacteristic->canNotify())
         pRemoteCharacteristic_battery_read->registerForNotify(emeraldBatteryCallback);
