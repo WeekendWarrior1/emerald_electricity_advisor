@@ -1,0 +1,42 @@
+esphome:
+  name: emeraldble
+
+esp32:
+  board: wemos_d1_mini32
+  framework:
+    type: arduino
+
+external_components:
+  - source: github://WeekendWarrior1/esphome@emerald_ble
+    # requires ble_client and ble_tracker because I had to add some small features to authenticate properly
+    components: [ ble_client, esp32_ble_tracker, emerald_ble ]
+    
+api:
+
+ota:
+
+wifi:
+  ssid: "YOUR_WIFI"
+  password: "super_secret"
+
+  ap:
+    ssid: "emeraldble Fallback Hotspot"
+    password: "super_secret"
+
+esp32_ble_tracker:
+
+ble_client:
+  - mac_address: 30:1B:97:01:02:03
+    id: emerald_advisor
+
+sensor:
+  - platform: emerald_ble
+    ble_client_id: emerald_advisor
+    power:
+      name: "Emerald Power"
+    energy:
+      name: "Emerald Total Energy"
+    battery_level:
+      name: "Emerald Battery"
+    pairing_code: 123123
+    pulses_per_kWh: 1000

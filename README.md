@@ -3,6 +3,44 @@ _This repository is not affiliated with Emerald._
 # emerald_electricity_advisor
 Collection of code, tools and documentation for data retrieval from your Emerald Electricity Advisor (all reverse engineered)
 
+## Using the ESPHome Component
+
+The ESPHome component hasn't been merged into esphome yet, but you can use it via `external_components`
+
+#### Requirements:
+- An ESP32
+- A configured Emerald Electricity Advisor
+- Electricity Advisor device information:
+  - BLE MAC address (can be found on device sticker, by running sketch, or by using an app like nRF Connect)
+  - Connection pairing pin (6 digits you input when setting up your device, also can be found on device sticker (last 6 digits of serial))
+  - Your Smart meter pulse rate (eg. 1000 pulses = 1kW/h)
+
+```yaml
+external_components:
+  - source: github://WeekendWarrior1/esphome@emerald_ble
+    # requires ble_client and ble_tracker because I had to add some small features to authenticate properly
+    components: [ ble_client, esp32_ble_tracker, emerald_ble ]
+
+esp32_ble_tracker:
+
+ble_client:
+  - mac_address: 30:1B:97:01:02:03
+    id: emerald_advisor
+
+sensor:
+  - platform: emerald_ble
+    ble_client_id: emerald_advisor
+    power:
+      name: "Emerald Power"
+    energy:
+      name: "Emerald Total Energy"
+    battery_level:
+      name: "Emerald Battery"
+    pairing_code: 123123
+    pulses_per_kWh: 1000
+```
+You can also find a full config here: [emerald_ble.yaml](emerald_ble.yaml) 
+
 ## Using the Arduino sketch
 This sketch simply prints the energy usage and time stamp for the updates sent by the Electricity Advisor, which should be received every 30s.
 
