@@ -5,6 +5,11 @@ Collection of code, tools and documentation for data retrieval from your Emerald
 
 ![Emerald Electricity Advisor Device](assets/IHD-new-grey-sensor-Final-1.png)
 
+- [Using the ESPHome Component](#using-the-esphome-component)
+- [Using the Arduino sketch](#using-the-arduino-sketch)
+- [Using the Emerald API](#using-the-emerald-api)
+- [BLE Documentation](#ble-documentation)
+
 ## Using the ESPHome Component
 
 The ESPHome component hasn't been merged into esphome yet, but you can use it via `external_components`
@@ -42,6 +47,7 @@ sensor:
     pulses_per_kWh: 1000
 ```
 You can also find a full config here: [emerald_ble.yaml](emerald_ble.yaml)
+
 And the component code here: [emerald_ble ESPHome Component](https://github.com/WeekendWarrior1/esphome/tree/emerald_ble/esphome/components/emerald_ble)
 
 ## Using the Arduino sketch
@@ -77,6 +83,8 @@ If you would prefer to use the cloud api rather than retrieving real-time data f
 Feel free to import the postman collection if you would like to have a play or to investigate the data you can retrieve:
 
 `Import` (ctrl+o in postman), > `link` > `Enter a URL` `https://raw.githubusercontent.com/WeekendWarrior1/emerald_electricity_advisor/main/emerald-ems.postman_collection.json` > `Continue`
+
+## BLE Documentation
 
 #### Important BLE services
 ```js
@@ -169,7 +177,6 @@ Subscribe to Emerald Advisor notifications:
 ```c++
 pRemoteCharacteristic_time_read = pRemoteService_time->getCharacteristic(CHAR_TIME_READ_UUID);
 pRemoteCharacteristic_time_read->registerForNotify(emeraldCommandCallback);
-
 ```
 
 Parse incoming Emerald Advisor notifications:
