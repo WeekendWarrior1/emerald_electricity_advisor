@@ -14,7 +14,12 @@ static uint32_t emerald_pass_key = 123123;
 static float pulses_per_kw = 1000;
 
 // assuming getting data 30s data packets from emerald energy advisor, which is standard
-static float pulse_multiplier = (2*60) / pulses_per_kw; //0.12
+static float pulse_multiplier = (2*60.0) / pulses_per_kw; //0.12
+
+static BLEUUID SERVICE_DEVICE_INFO_UUID("0000180A-0000-1000-8000-00805f9b34fb");
+static BLEUUID CHAR_DEVICE_MANUFACTUER_UUID("00002A29-0000-1000-8000-00805f9b34fb");
+static BLEUUID CHAR_DEVICE_SERIAL_UUID("00002A25-0000-1000-8000-00805f9b34fb");
+static BLEUUID CHAR_DEVICE_FIRMWARE_UUID("00002A26-0000-1000-8000-00805f9b34fb");
 
 static BLEUUID SERVICE_TIME_UUID("00001910-0000-1000-8000-00805f9b34fb");
 static BLEUUID CHAR_TIME_READ_UUID("00002b10-0000-1000-8000-00805f9b34fb");  // read, notify
@@ -26,6 +31,8 @@ static BLEUUID CHAR_BATTERY_READ_UUID("00002a19-0000-1000-8000-00805f9b34fb");  
 static boolean doConnect = false;
 static boolean connected = false;
 static boolean doScan = false;
+static boolean authenticated = false;
+static boolean subscribed = false;
 
 static BLEAdvertisedDevice *myDevice;
 static BLEClient *pClient;
@@ -89,6 +96,41 @@ void decodeEmeraldDate(uint32_t commandDateBin) {
     if (hours < 10) { Serial.print("0"); } Serial.print(hours); Serial.print(":");
     if (minutes < 10) { Serial.print("0"); } Serial.print(minutes); Serial.print(":");
     if (seconds < 10) { Serial.print("0"); } Serial.print(seconds); Serial.println(".000");
+}
+
+uint32_t buildEmeraldDate(struct tm timeinfo) {
+    uint32_t dateBin = 0;
+    // dateBin += (timeinfo.tm_sec & 0b111111); // Skip seconds, as Emerald expects a 0 here
+    dateBin += ((timeinfo.tm_min & 0b111111) << 6);
+    dateBin += ((timeinfo.tm_hour & 0b11111) << 12);
+    dateBin += ((timeinfo.tm_mday & 0b11111) << 17);
+    dateBin += (((timeinfo.tm_mon + 1) & 0b1111) << 22); // Emerald expects month + 1
+    dateBin += (((timeinfo.tm_year - 100) & 0b111111) << 26); //tm_year is years since 1900, so - 100 from it to get years since 2000
+    return dateBin;
+}
+
+uint8_t* buildEmeraldCalenderStartEnd(struct tm timeinfo) {
+    uint8_t startYear = (timeinfo.tm_year - 100);
+    uint8_t startMonth = (timeinfo.tm_mon + 1);
+    uint8_t startDay = timeinfo.tm_mday;
+    uint8_t startHour = timeinfo.tm_hour;
+
+    uint8_t endYear = (timeinfo.tm_year - 100);
+    uint8_t endMonth = (timeinfo.tm_mon + 1);
+    uint8_t endDay = timeinfo.tm_mday;
+    uint8_t endHour = 23;
+
+    static uint8_t startEndBin[8] = { startYear,startMonth,startDay,startHour, endYear,endMonth,endDay,endHour };
+    Serial.print(startEndBin[0],HEX); 
+    Serial.print(startEndBin[1],HEX); 
+    Serial.print(startEndBin[2],HEX); 
+    Serial.print(startEndBin[3],HEX); 
+    Serial.print(startEndBin[4],HEX); 
+    Serial.print(startEndBin[5],HEX); 
+    Serial.print(startEndBin[6],HEX); 
+    Serial.print(startEndBin[7],HEX); 
+    Serial.println("");
+    return startEndBin;
 }
 
 static void emeraldCommandCallback(
@@ -177,6 +219,8 @@ class MyClientCallback : public BLEClientCallbacks
     void onDisconnect(BLEClient *pclient)
     {
         connected = false;
+        authenticated = false;
+        subscribed = false;
         Serial.println("onDisconnect");
     }
 
@@ -247,12 +291,14 @@ class MySecurityCallback : public BLESecurityCallbacks
         if (auth_cmpl.success)
         {
             Serial.println("auth_cmpl.success");
+            authenticated = true;
         }
         else
         {
             Serial.println("auth_cmpl.failed");
             Serial.print("fail_reason: ");
             Serial.println(auth_cmpl.fail_reason);
+            authenticated = false;
         }
     }
 };
@@ -264,9 +310,15 @@ bool connectToServer()
 
     // security
     BLESecurity *pSecurity = new BLESecurity();
-    pSecurity->setAuthenticationMode(ESP_BLE_SEC_ENCRYPT_MITM);
-    pSecurity->setCapability(ESP_IO_CAP_KBDISP);
-    pSecurity->setRespEncryptionKey(16);
+    esp_ble_io_cap_t iocap = ESP_IO_CAP_KBDISP;
+    esp_ble_gap_set_security_param(ESP_BLE_SM_IOCAP_MODE, &iocap, sizeof(esp_ble_io_cap_t));
+
+    uint8_t key_size = 16;      //the key size should be 7~16 bytes
+    esp_ble_gap_set_security_param(ESP_BLE_SM_MAX_KEY_SIZE, &key_size, sizeof(uint8_t));
+
+    esp_ble_auth_req_t auth_req = ESP_LE_AUTH_REQ_SC_MITM_BOND; //bonding with peer device after authentication
+    esp_ble_gap_set_security_param(ESP_BLE_SM_AUTHEN_REQ_MODE, &auth_req, sizeof(esp_ble_auth_req_t));
+
 
     BLEDevice::setSecurityCallbacks(new MySecurityCallback());
 
@@ -278,76 +330,18 @@ bool connectToServer()
     pClient->connect(myDevice);
     Serial.println(" - Connected to server");
 
-    // service battery
-    Serial.println("Attempting to get battery service...");
-    BLERemoteService *pRemoteService_battery = pClient->getService(SERVICE_BATTERY_UUID);
-    if (pRemoteService_battery == nullptr)
-    {
-        Serial.print("Failed to find our battery service UUID: ");
-        Serial.println(SERVICE_BATTERY_UUID.toString().c_str());
-        pClient->disconnect();
-        return false;
-    }
-    // time char notify
-    pRemoteCharacteristic_battery_read = pRemoteService_battery->getCharacteristic(CHAR_BATTERY_READ_UUID);
-    if (pRemoteCharacteristic_battery_read == nullptr)
-    {
-        Serial.print("Failed to find our characteristic UUID: ");
-        Serial.println(CHAR_BATTERY_READ_UUID.toString().c_str());
-        pClient->disconnect();
-        return false;
-    }
-    else
-    {
-        // Serial.println("Attempting to read battery level...");
-        // uint32_t battery = pRemoteCharacteristic_battery_read->readUInt32();
-        // Serial.print("Battery Level: ");
-        // Serial.println(battery);
-
-        // if (pRemoteCharacteristic->canNotify())
-        pRemoteCharacteristic_battery_read->registerForNotify(emeraldBatteryCallback);
-    }
-
-    // service time
-    Serial.println("Attempting to get time service...");
-    BLERemoteService *pRemoteService_time = pClient->getService(SERVICE_TIME_UUID);
-    if (pRemoteService_time == nullptr)
-    {
-        Serial.print("Failed to find our time service UUID: ");
-        Serial.println(SERVICE_TIME_UUID.toString().c_str());
-        pClient->disconnect();
-        return false;
-    }
-    // time char notify
-    pRemoteCharacteristic_time_read = pRemoteService_time->getCharacteristic(CHAR_TIME_READ_UUID);
-    if (pRemoteCharacteristic_time_read == nullptr)
-    {
-        Serial.print("Failed to find our characteristic UUID: ");
-        Serial.println(CHAR_TIME_READ_UUID.toString().c_str());
-        pClient->disconnect();
-        return false;
-    }
-    else
-    {
-        // if (pRemoteCharacteristic->canNotify())
-        pRemoteCharacteristic_time_read->registerForNotify(emeraldCommandCallback);
-    }
-
-    pRemoteCharacteristic_time_write = pRemoteService_time->getCharacteristic(CHAR_TIME_WRITE_UUID);
-    if (pRemoteCharacteristic_time_write == nullptr)
-    {
-        Serial.print("Failed to find our characteristic UUID: ");
-        Serial.println(CHAR_TIME_WRITE_UUID.toString().c_str());
-        pClient->disconnect();
-        return false;
-    } else {
-        Serial.println("Writing getUpdatedPowerCmd to time_write");
-        // pRemoteCharacteristic_time_write->writeValue(writeRequest, true);
-        pRemoteCharacteristic_time_write->writeValue(getUpdatedPowerCmd, false);
-    }
-    Serial.println("Write succeeded");
-
     connected = true;
+    return true;
+}
+
+bool subscribeToCharacteristics() {
+    BLERemoteService *pRemoteService_time = pClient->getService(SERVICE_TIME_UUID);
+    pRemoteCharacteristic_time_read = pRemoteService_time->getCharacteristic(CHAR_TIME_READ_UUID);
+    pRemoteCharacteristic_time_write = pRemoteService_time->getCharacteristic(CHAR_TIME_WRITE_UUID);
+    pRemoteCharacteristic_time_read->registerForNotify(emeraldCommandCallback);
+    delay(500);
+    uint8_t set_auto_upload[] = {0x00, 0x01, 0x02, 0x0b, 0x01, 0x01};
+    pRemoteCharacteristic_time_write->writeValue(set_auto_upload, false);
     return true;
 }
 
@@ -420,11 +414,21 @@ void loop()
         doConnect = false;
     }
 
-    if (connected)
+    if (connected && authenticated && !subscribed)
     {
-        // currently doing nothing here, because we are instead using a notify callback
+        // set impulses on device, 00010104020C80
+        Serial.print("Pulses: ");
+        Serial.println(pulses_per_kw,HEX);
+                
+        // writeCurrentTime(6 hex)
+
+        
+        subscribed = subscribeToCharacteristics();
+        if (subscribed) {
+            Serial.println("Succesfully completed subscribe function");
+        }
     }
-    else if (doScan)
+    else if (doScan && !connected)
     {
         BLEDevice::getScan()->start(0); // this is just example to start scan after disconnect, most likely there is better way to do it in arduino
     }
