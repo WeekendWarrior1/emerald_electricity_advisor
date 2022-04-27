@@ -3,7 +3,7 @@ _This repository is not affiliated with Emerald._
 # emerald_electricity_advisor
 Collection of code, tools and documentation for data retrieval from your Emerald Electricity Advisor (all reverse engineered)
 
-![Emerald Electricity Advisor Device](assets/IHD-new-grey-sensor-Final-1.png)
+![Emerald Electricity Advisor Device](assets/emerald_cropped.png)
 
 - [Using the ESPHome Component](#using-the-esphome-component)
 - [Using the Arduino sketch](#using-the-arduino-sketch)
