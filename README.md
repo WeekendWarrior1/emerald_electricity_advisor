@@ -44,7 +44,7 @@ sensor:
     battery_level:
       name: "Emerald Battery"
     pairing_code: 123123
-    pulses_per_kWh: 1000
+    pulses_per_kwh: 1000
 ```
 You can also find a full config here: [emerald_ble.yaml](emerald_ble.yaml)
 
