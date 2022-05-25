@@ -28,6 +28,11 @@ external_components:
     # requires ble_client and ble_tracker because I had to add some small features to authenticate properly
     components: [ ble_client, esp32_ble_tracker, emerald_ble ]
 
+# optional requirement used with daily energy sensor
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+
 esp32_ble_tracker:
 
 ble_client:
@@ -39,12 +44,15 @@ sensor:
     ble_client_id: emerald_advisor
     power:
       name: "Emerald Power"
+    daily_energy:
+      name: "Emerald Daily Energy"
     energy:
       name: "Emerald Total Energy"
     battery_level:
       name: "Emerald Battery"
     pairing_code: 123123
     pulses_per_kWh: 1000
+    time_id: homeassistant_time # daily energy still works without a time_id, but recommended to include one to properly handle daylight savings, etc.
 ```
 You can also find a full config here: [emerald_ble.yaml](emerald_ble.yaml)
 
