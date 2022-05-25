@@ -46,5 +46,5 @@ sensor:
     battery_level:
       name: "Emerald Battery"
     pairing_code: 123123
-    pulses_per_kWh: 1000
+    pulses_per_kwh: 1000
     time_id: homeassistant_time # daily energy still works without a time_id, but recommended to include one to properly handle daylight savings, etc.
