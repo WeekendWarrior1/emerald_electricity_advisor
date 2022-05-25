@@ -18,7 +18,7 @@ The ESPHome component hasn't been merged into esphome yet, but you can use it vi
 - An ESP32
 - A configured Emerald Electricity Advisor
 - Electricity Advisor device information:
-  - BLE MAC address (can be found on device sticker, by running sketch, or by using an app like nRF Connect)
+  - BLE MAC address (can be found on device sticker, by running sketch, or by using an app like nRF Connect once you have disabled the bluetooth of all your smart devices)
   - Connection pairing pin (6 digits you input when setting up your device, also can be found on device sticker (last 6 digits of serial))
   - Your Smart meter pulse rate (eg. 1000 pulses = 1kW/h)
 
@@ -69,7 +69,7 @@ Of interest in the sketch is the security configuration required to pair/handsha
 - An ESP32
 - A configured Emerald Electricity Advisor
 - Electricity Advisor device information:
-  - BLE MAC address (can be found on device sticker, by running sketch, or by using an app like nRF Connect)
+  - BLE MAC address (can be found on device sticker, by running sketch, or by using an app like nRF Connect once you have disabled the bluetooth of all your smart devices)
   - Connection pairing pin (6 digits you input when setting up your device, also can be found on device sticker (last 6 digits of serial))
   - Your Smart meter pulse rate (eg. 1000 pulses = 1kW/h)
 
